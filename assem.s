@@ -1,0 +1,20 @@
+# RV-32I assembly program to calculate the GCD of two number
+
+addi x1, x0, 36     # give 1st number
+sw x1, 0(x0)
+addi x2, x0, 28     # give 2nd number
+sw x2, 4(x0)
+#lw x1, 0(x0)
+#lw x2, 4(x0)
+addi x3, x0, 1
+addi x6,x0,31
+beq x1,x2,36
+sub x4,x2,x1
+srl x5,x4,x6
+beq x3, x5, 16
+sub x2,x2,x1
+bne x1,x2,-16
+beq x1,x2,12
+sub x1,x1,x2
+bne x1,x2, -28
+sw x1,8(x0)
