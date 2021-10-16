@@ -3,7 +3,8 @@
 module top_level (
     input clk, rst,
     //output [31:0] Reg_File,
-    output [31:0] PC,Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7, DM0, DM4, DM8
+    output reg [31:0] PC,
+    output [31:0] Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7, DM0, DM4, DM8
 );
     
     // Control Flags
@@ -19,7 +20,27 @@ module top_level (
     reg [31:0] SrcB,ALUResult,Result;
     reg beq,bne,zero;
 
+    reg [31:0] PCTarget,PCNext,PCPlus4;
+    
+    always @(*) begin
+        PCNext <= PCSrc ? PCTarget : PCPlus4;
+    end
 
+    always @(*) begin
+        PCPlus4 <= PC + 32'd4;
+    end
+
+    always @(posedge clk) begin
+        if(rst)
+            PC <= 32'd0;
+        else
+            PC <= PCNext;
+    end
+    //address_generator a3( .PCTarget(PCTarget), .clk(clk), .rst(rst), .pc_src(PCSrc) , .pc(PC));
+
+    always @(*) begin
+        PCTarget <= ImmExt + PC;
+    end
 
     instr_mem a1(.A(PC), .RD(Instr));
 
@@ -41,13 +62,6 @@ module top_level (
     
     extend a2(.ImmExt(ImmExt), .Instr(Instr));
 
-    reg [31:0] PCTarget;
-    
-    address_generator a3( .PCTarget(PCTarget), .clk(clk), .rst(rst), .pc_src(PCSrc) , .pc(PC));
-
-    always @(*) begin
-        PCTarget <= ImmExt + PC;
-    end
 
 
     register_file a4 ( .RD1(SrcA), .RD2(WriteData), .RF1(RF1), .RF2(RF2), .RF3(RF3), .RF4(RF4), .RF5(RF5),
@@ -87,7 +101,7 @@ module top_level (
         case (ResultSrc)
             2'b00: Result <= ALUResult;
             2'b01: Result <= ReadData;
-            2'b10: Result <= PC + 4;
+            2'b10: Result <= PCPlus4;
             default: Result <= 32'd0;
         endcase
         //Result <= ResultSrc ? ReadData: ALUResult;
