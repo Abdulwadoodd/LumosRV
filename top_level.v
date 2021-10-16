@@ -7,8 +7,9 @@ module top_level (
 );
     
     // Control Flags
-    wire [1:0] ImmSrc;
-    wire PCSrc, RegWrite, ResultSrc,MemWrite,ALUSrc;
+    //wire [1:0] ImmSrc;
+    wire PCSrc, RegWrite, MemWrite,ALUSrc;
+    wire [1:0] ResultSrc;
     wire [2:0] ALUControl;
 
 
@@ -38,7 +39,7 @@ module top_level (
 
     wire [31:0] ImmExt;
     
-    extend a2(.ImmExt(ImmExt), .ImmSrc(ImmSrc), .Instr(Instr));
+    extend a2(.ImmExt(ImmExt), .Instr(Instr));
 
     reg [31:0] PCTarget;
     
@@ -68,6 +69,7 @@ module top_level (
             3'b010: ALUResult = SrcA && SrcB;
             3'b110: ALUResult = SrcA ^^ SrcB;
             3'b111: ALUResult = SrcA >> SrcB;
+            3'b100: ALUResult = SrcB;
             default: ALUResult = 32'd0;
         endcase
         beq = (ALUResult == 0);
@@ -82,12 +84,17 @@ module top_level (
     Data_Memory a5(.RD(ReadData),.DM0(DM0), .DM4(DM4), .DM8(DM8), .WD(WriteData), .A(ALUResult), .WE(MemWrite), .clk(clk), .rst(rst));
 
     always @(*) begin
-        
-        Result <= ResultSrc ? ReadData: ALUResult;
+        case (ResultSrc)
+            2'b00: Result <= ALUResult;
+            2'b01: Result <= ReadData;
+            2'b10: Result <= PC + 4;
+            default: Result <= 32'd0;
+        endcase
+        //Result <= ResultSrc ? ReadData: ALUResult;
     end
 
 
     ControlUnit a6( .opcode(opcode), .func3(func3), .func7_5(func7_5), .zero(zero), .ResultSrc(ResultSrc), .MemWrite(MemWrite),
-    .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ImmSrc(ImmSrc), .ALUControl(ALUControl));
+    .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ALUControl(ALUControl));
 
 endmodule

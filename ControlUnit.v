@@ -4,71 +4,95 @@ module ControlUnit (
     input [6:0] opcode,
     input [2:0] func3,
     input func7_5, zero,
-    output reg ResultSrc, MemWrite, ALUSrc, RegWrite, PCSrc,
-    output reg [1:0] ImmSrc,
+    output reg [1:0] ResultSrc,
+    output reg MemWrite, ALUSrc, RegWrite, PCSrc,
+    //output reg [1:0] ImmSrc,
     output reg [2:0] ALUControl
 );
 
     reg [1:0] ALUOp;
-    reg Branch;
-
+    reg Branch,Jump;
     always @(*) begin
         
         casex (opcode)
             7'b0000011: begin // lw
                             RegWrite = 1;
-                            ImmSrc = 2'b00;
+                            //ImmSrc = 2'b00;
                             ALUSrc = 1;
                             MemWrite = 0;
-                            ResultSrc = 1;
+                            ResultSrc = 2'b01;
                             Branch = 0;
                             ALUOp = 2'b00;
+                            Jump = 0;
                         end 
             7'b0100011: begin   //sw
                             RegWrite = 0;
-                            ImmSrc = 2'b01;
+                            //ImmSrc = 2'b01;
                             ALUSrc = 1;
                             MemWrite = 1;
-                            ResultSrc = 1'bx;
+                            ResultSrc = 2'bxx;
                             Branch = 0;
                             ALUOp = 2'b00;
+                            Jump = 0;
                         end 
 
             7'b0110011: begin   // R-type
                             RegWrite = 1;
-                            ImmSrc = 2'bxx;
+                            //ImmSrc = 2'bxx;
                             ALUSrc = 0;
                             MemWrite = 0;
-                            ResultSrc = 0;
+                            ResultSrc = 2'b00;
                             Branch = 0;
                             ALUOp = 2'b10;
+                            Jump = 0;
                         end 
             7'b1100011: begin   // beq, bne
                             RegWrite = 0;
-                            ImmSrc = 2'b10;
+                            //ImmSrc = 2'b10;
                             ALUSrc = 0;
                             MemWrite = 0;
-                            ResultSrc = 1'bx;
+                            ResultSrc = 2'bxx;
                             Branch = 1;
                             ALUOp = 2'b01;
+                            Jump = 0;
                         end 
             7'b0010011: begin       // addi
                             RegWrite = 1;
-                            ImmSrc = 2'b00;
+                            //ImmSrc = 2'b00;
                             ALUSrc = 1;
                             MemWrite = 0;
-                            ResultSrc = 0;
+                            ResultSrc = 2'b00;
                             Branch = 0;
                             ALUOp = 2'b10;
-                        end 
-            default:    begin       // addi
+                            Jump = 0;
+                        end
+            7'b0110111: begin       // U-Type
+                            RegWrite = 1;
+                            ALUSrc = 1;
+                            MemWrite = 0;
+                            ResultSrc = 2'b00;
+                            Branch = 0;
+                            ALUOp = 2'b11;
+                            Jump = 0;
+                        end
+            7'b1101111: begin
+                            RegWrite =1;
+                            ALUSrc = 1'bx;
+                            MemWrite = 0;
+                            ResultSrc = 2'b10;
+                            Branch = 0;
+                            ALUOp = 2'bxx;
+                            Jump = 1;
+                        end
+            default:    begin       // default
                             RegWrite = 0;
-                            ImmSrc = 2'b00;
+                            //ImmSrc = 2'b00;
                             ALUSrc = 0;
                             MemWrite = 0;
-                            ResultSrc = 0;
+                            ResultSrc = 2'b0;
                             Branch = 0;
                             ALUOp = 2'b00;
+                            Jump = 0;
                         end 
         endcase
     end
@@ -85,18 +109,22 @@ module ControlUnit (
             7'b10111xx: ALUControl = 3'b010;
             7'b10100xx: ALUControl = 3'b110;//xor
             7'b10101xx: ALUControl = 3'b111;//srl
+            7'b11xxxxx: ALUControl = 3'b100;
 
             
             default: ALUControl = 3'b000;
         endcase
     end
 
+    reg check;
+
     always @(*) begin
-        PCSrc = Branch & zero;
+        check = Branch & zero;
     end
 
-    
+    always @(*) begin
+        PCSrc = check | Jump;
+    end
 
-
-    
+ 
 endmodule
