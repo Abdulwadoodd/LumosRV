@@ -6,20 +6,15 @@ module top_level (
     output reg [31:0] PC,
     output [31:0] Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7, DM0, DM4, DM8
 );
-    
     // Control Flags
     //wire [1:0] ImmSrc;
-    wire PCSrc, RegWrite, MemWrite,ALUSrc;
-    wire [1:0] ResultSrc;
+    wire PCSrc, RegWrite, ALUSrc;
+    wire [1:0] ResultSrc,MemWrite;
     wire [2:0] ALUControl;
-
-
     //necessary wires and reg for top level Data Path
-
     wire [31:0] ReadData,SrcA,WriteData;
     reg [31:0] SrcB,ALUResult,Result;
     reg beq,bne,zero;
-
     reg [31:0] PCTarget,PCNext,PCPlus4;
     
     always @(*) begin
@@ -62,18 +57,14 @@ module top_level (
     
     extend a2(.ImmExt(ImmExt), .Instr(Instr));
 
-
-
     register_file a4 ( .RD1(SrcA), .RD2(WriteData), .RF1(RF1), .RF2(RF2), .RF3(RF3), .RF4(RF4), .RF5(RF5),
                        .RF6(RF6), .RF7(RF7), .WD3(Result), .A1(A1), .A2(A2), .A3(A3), 
                         .WE3(RegWrite), .clk(clk),.rst(rst) );
 
-    
     always @(*) begin
         SrcB <= ALUSrc ? ImmExt : WriteData; 
     end
 
-    
     always @(*) begin
         case (ALUControl)
             3'b000: ALUResult = SrcA + SrcB;
@@ -88,7 +79,6 @@ module top_level (
         endcase
         beq = (ALUResult == 0);
         bne = (ALUResult != 0);
-
     end
 
     always@(*)begin
@@ -106,7 +96,6 @@ module top_level (
         endcase
         //Result <= ResultSrc ? ReadData: ALUResult;
     end
-
 
     ControlUnit a6( .opcode(opcode), .func3(func3), .func7_5(func7_5), .zero(zero), .ResultSrc(ResultSrc), .MemWrite(MemWrite),
     .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ALUControl(ALUControl));
