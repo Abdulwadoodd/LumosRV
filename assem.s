@@ -1,3 +1,4 @@
+# New instruction tests
 
 # lui x2, 0x12345
 # addi x2,x2, 0x0A8
@@ -18,8 +19,17 @@
 # addi x6, x0, 9
 # addi x0,x0,0
 
-# RV-32I assembly program to calculate the GCD of two number
+# Logical operation test
+# addi x1,x0,0b10101111
+# addi x2,x0,-16
+# addi x5,x0,3
+# sll x3,x1,x5
+# srl x3,x1,x5
+# sra x4,x2,x5
+# addi x0,x0,0
 
+
+# RV-32I assembly program to calculate the GCD of two number
 addi x1, x0, 36     # give 1st number
 sw x1, 0(x0)
 addi x2, x0, 28     # give 2nd number
