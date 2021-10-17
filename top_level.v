@@ -10,7 +10,7 @@ module top_level (
     //wire [1:0] ImmSrc;
     wire PCSrc, RegWrite, ALUSrc;
     wire [1:0] ResultSrc,MemWrite;
-    wire [2:0] ALUControl;
+    wire [2:0] ALUControl,MemRead;
     //necessary wires and reg for top level Data Path
     wire [31:0] ReadData,SrcA,WriteData;
     reg [31:0] SrcB,ALUResult,Result;
@@ -32,7 +32,7 @@ module top_level (
             PC <= PCNext;
     end
     //address_generator a3( .PCTarget(PCTarget), .clk(clk), .rst(rst), .pc_src(PCSrc) , .pc(PC));
-
+    wire [31:0] ImmExt;
     always @(*) begin
         PCTarget <= ImmExt + PC;
     end
@@ -53,7 +53,7 @@ module top_level (
         A3 <= Instr[11:7];
     end
 
-    wire [31:0] ImmExt;
+    
     
     extend a2(.ImmExt(ImmExt), .Instr(Instr));
 
@@ -85,7 +85,7 @@ module top_level (
         zero <= func3 ? bne : beq;               
     end
 
-    Data_Memory a5(.RD(ReadData),.DM0(DM0), .DM4(DM4), .DM8(DM8), .WD(WriteData), .A(ALUResult), .WE(MemWrite), .clk(clk), .rst(rst));
+    Data_Memory a5(.RD(ReadData),.DM0(DM0), .DM4(DM4), .DM8(DM8), .WD(WriteData), .A(ALUResult), .WE(MemWrite), .RE(MemRead) , .clk(clk), .rst(rst));
 
     always @(*) begin
         case (ResultSrc)
@@ -98,6 +98,6 @@ module top_level (
     end
 
     ControlUnit a6( .opcode(opcode), .func3(func3), .func7_5(func7_5), .zero(zero), .ResultSrc(ResultSrc), .MemWrite(MemWrite),
-    .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ALUControl(ALUControl));
+    .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ALUControl(ALUControl), .MemRead(MemRead));
 
 endmodule
