@@ -12,7 +12,6 @@ module Data_Memory(output reg [31:0] RD, DM0,DM4,DM8,
 				2'b11: MemIn <= WD;			//sw
 			endcase
 		end
-
 		always @ (posedge clk)
 		begin	
 			if(rst)begin
@@ -30,19 +29,16 @@ module Data_Memory(output reg [31:0] RD, DM0,DM4,DM8,
 		always @(*) begin
 			MemOut <= Mem[A];
 		end
-
 		always @(*) begin
 			case (RE)
 				3'b000: RD <= MemOut;	//lw
 				3'b001: RD <= {{24{MemOut[7]}},MemOut[7:0]};	//lb
 				3'b010: RD <= {{16{MemOut[15]}},MemOut[15:0]};	//lh
-				3'b011: RD <= {{24{0}},MemOut[7:0]};	//lbu
-				3'b100: RD <= {{16{0}},MemOut[15:0]};	//lhu
+				3'b011: RD <= {{24{1'b0}},MemOut[7:0]};	//lbu
+				3'b100: RD <= {{16{1'b0}},MemOut[15:0]};	//lhu
 				
 				default: RD <= MemOut;
 			endcase
-
-
 		end
 
 		always @(*) begin

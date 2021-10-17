@@ -3,6 +3,7 @@
 module top_level (
     input clk, rst,
     //output [31:0] Reg_File,
+    //output [3:0] ALUControl,
     output reg [31:0] PC,
     output [31:0] Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7, DM0, DM4, DM8
 );
@@ -10,10 +11,13 @@ module top_level (
     //wire [1:0] ImmSrc;
     wire PCSrc, RegWrite, ALUSrc;
     wire [1:0] ResultSrc,MemWrite;
-    wire [2:0] ALUControl,MemRead;
+    wire [2:0] MemRead;
+    wire signed [3:0] ALUControl;
     //necessary wires and reg for top level Data Path
-    wire [31:0] ReadData,SrcA,WriteData;
-    reg [31:0] SrcB,ALUResult,Result;
+    wire [31:0] ReadData,WriteData;
+    wire signed [31:0] SrcA;
+    reg [31:0] ALUResult,Result;
+    reg signed [31:0] SrcB;
     reg beq,bne,zero;
     reg [31:0] PCTarget,PCNext,PCPlus4;
     
@@ -67,14 +71,17 @@ module top_level (
 
     always @(*) begin
         case (ALUControl)
-            3'b000: ALUResult = SrcA + SrcB;
-            3'b001: ALUResult = SrcA - SrcB;
-            3'b101: ALUResult = SrcA < SrcB;
-            3'b011: ALUResult = SrcA || SrcB;
-            3'b010: ALUResult = SrcA && SrcB;
-            3'b110: ALUResult = SrcA ^^ SrcB;
-            3'b111: ALUResult = SrcA >> SrcB;
-            3'b100: ALUResult = SrcB;
+            4'b0000: ALUResult = SrcA + SrcB;
+            4'b0001: ALUResult = SrcA - SrcB;
+            4'b0010: ALUResult = SrcA & SrcB;
+            4'b0011: ALUResult = SrcA | SrcB;
+            4'b0100: ALUResult = SrcB;
+            4'b0101: ALUResult = SrcA < SrcB;
+            4'b0110: ALUResult = SrcA ^ SrcB;
+            4'b0111: ALUResult = SrcA >> SrcB;
+            4'b1000: ALUResult = SrcA << SrcB;
+            4'b1001: ALUResult = SrcA >>> SrcB;
+            
             default: ALUResult = 32'd0;
         endcase
         beq = (ALUResult == 0);

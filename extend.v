@@ -8,7 +8,14 @@ module extend (
 
     always @(*) begin
         case(Instr[6:0])
-            7'b0000011, 7'b0010011:  ImmExt <= {{20{Instr[31]}}, Instr[31:20]};
+            7'b0000011:  ImmExt <= {{20{Instr[31]}}, Instr[31:20]};
+            7'b0010011: begin
+                            case (Instr[14:12])
+                                3'b011: ImmExt <= {{20{1'b0}}, Instr[31:20]};
+                                3'b001, 3'b101: ImmExt <= {{27{1'b0}}, Instr[24:20]};
+                                default: ImmExt <= {{20{Instr[31]}}, Instr[31:20]};
+                            endcase
+                        end 
             7'b0100011:  ImmExt <= {{20{Instr[31]}}, Instr[31:25], Instr[11:7]};
             7'b1100011:  ImmExt <= {{20{Instr[31]}}, Instr[7], Instr[30:25], Instr[11:8], 1'b0};
             7'b1101111:  ImmExt <= {{12{Instr[31]}}, Instr[19:12], Instr[20], Instr[30:21], 1'b0};
