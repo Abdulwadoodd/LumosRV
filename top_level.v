@@ -12,12 +12,12 @@ module top_level (
     wire PCSrc, RegWrite, ALUSrc;
     wire [1:0] ResultSrc,MemWrite;
     wire [2:0] MemRead,br_taken;
-    wire signed [3:0] ALUControl;
+    wire [3:0] ALUControl;
     //necessary wires and reg for top level Data Path
     wire [31:0] ReadData,WriteData;
-    wire signed [31:0] SrcA;
+    wire [31:0] SrcA;
     reg [31:0] ALUResult,Result;
-    reg signed [31:0] SrcB;
+    reg [31:0] SrcB;
     reg [31:0] PCTarget,PCNext,PCPlus4;
     
     always @(*) begin
@@ -76,34 +76,35 @@ module top_level (
             4'b0010: ALUResult = SrcA & SrcB;
             4'b0011: ALUResult = SrcA | SrcB;
             4'b0100: ALUResult = SrcB;
-            4'b0101: ALUResult = SrcA < SrcB;
+            4'b0101: ALUResult = $signed(SrcA) < $signed(SrcB);
             4'b0110: ALUResult = SrcA ^ SrcB;
             4'b0111: ALUResult = SrcA >> SrcB;
             4'b1000: ALUResult = SrcA << SrcB;
-            4'b1001: ALUResult = SrcA >>> SrcB;
-            
+            4'b1001: ALUResult = $signed(SrcA) >>> $signed(SrcB);
+            4'b1010: ALUResult = SrcA < SrcB;
+            //4'b1011: ALUResult = $signed(SrcA) - $signed(SrcB);
             default: ALUResult = 32'd0;
         endcase
         //beq = (ALUResult == 0);
         //bne = (ALUResult != 0);
     end
 
-    reg beq,bne,blt,bge,zero;
-    
+    reg zero;
     //Branch Module
-    always @(*) begin
-        beq <= (SrcA == SrcB);
-        bne <= (SrcA != SrcB);
-        blt <= (SrcA < SrcB);
-        bge <= (SrcA >= SrcB);
-    end
-
+    // always @(*) begin
+    //     beq <= (SrcA == SrcB);
+    //     bne <= (SrcA != SrcB);
+    //     blt <= (SrcA < SrcB);
+    //     bge <= (SrcA >= SrcB);
+    // end
     always@(*)begin
         case (br_taken)
-            3'b001: zero = beq;
-            3'b010: zero = bne;
-            3'b011: zero = blt;
-            3'b100: zero = bge;
+            3'b001: zero = (SrcA == SrcB);
+            3'b010: zero = (SrcA != SrcB);
+            3'b011: zero = (SrcA < SrcB);
+            3'b100: zero = (SrcA >= SrcB);
+            3'b101: zero = ($signed(SrcA) < $signed(SrcB));
+            3'b110: zero = ($signed(SrcA) >= $signed(SrcB));
             default: zero = 1'b0;
         endcase              
     end

@@ -51,7 +51,19 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_taken = 3'b010;
                             end 
-            10'b1100011100, 10'b1100011110: begin   //  BLT or BLTU
+            10'b1100011100: begin   //  BLT 
+                                RegWrite = 0;
+                                //ImmSrc = 2'b10;
+                                ALUSrc = 0;
+                                MemWrite = 2'b00;
+                                ResultSrc = 2'bxx;
+                                Branch = 1;
+                                ALUOp = 2'b01;
+                                Jump = 0;
+                                MemRead= 3'b000;
+                                br_taken = 3'b101;
+                            end 
+            10'b1100011110: begin   //  BLTU
                                 RegWrite = 0;
                                 //ImmSrc = 2'b10;
                                 ALUSrc = 0;
@@ -62,8 +74,20 @@ module ControlUnit (
                                 Jump = 0;
                                 MemRead= 3'b000;
                                 br_taken = 3'b011;
+                            end
+            10'b1100011101: begin   //  BGE 
+                                RegWrite = 0;
+                                //ImmSrc = 2'b10;
+                                ALUSrc = 0;
+                                MemWrite = 2'b00;
+                                ResultSrc = 2'bxx;
+                                Branch = 1;
+                                ALUOp = 2'b01;
+                                Jump = 0;
+                                MemRead= 3'b000;
+                                br_taken = 3'b110;
                             end 
-            10'b1100011101, 10'b1100011111: begin   //  BGE or BGEU
+            10'b1100011111: begin   //   BGEU
                                 RegWrite = 0;
                                 //ImmSrc = 2'b10;
                                 ALUSrc = 0;
@@ -74,7 +98,7 @@ module ControlUnit (
                                 Jump = 0;
                                 MemRead= 3'b000;
                                 br_taken = 3'b100;
-                            end 
+                            end
             10'b0010011xxx: begin       // I-type (addi)
                                 RegWrite = 1;
                                 //ImmSrc = 2'b00;
@@ -224,16 +248,17 @@ module ControlUnit (
     //ALU Decoder
     always @(*) begin
         casex ({ALUOp,func3,opcode[5],func7_5}) 
-            7'b00xxxxx, 7'b1000000, 7'b1000001, 7'b1000010, 7'b100000x : ALUControl = 4'b000;  //add
-            7'b01xxxxx, 7'b1000011: ALUControl = 4'b001;  //sub
+            7'b00xxxxx, 7'b1000000, 7'b1000001, 7'b1000010, 7'b100000x : ALUControl = 4'b0000;  //add
+            7'b01xxxxx, 7'b1000011: ALUControl = 4'b0001;  //sub
             7'b10111xx: ALUControl = 4'b0010;    //AND
             7'b10110xx: ALUControl = 4'b0011;    //OR
             7'b11xxxxx: ALUControl = 4'b0100;    //no operation for U-type
-            7'b10010xx: ALUControl = 4'b0101;    //slt
+            7'b10010xx: ALUControl = 4'b0101;    //SLT, SLTI
             7'b10100xx: ALUControl = 4'b0110;    //xor
             7'b10101x0: ALUControl = 4'b0111;    //SRL, SRLI
             7'b10001x0: ALUControl = 4'b1000;   //SLL, SLLI
             7'b10101x1: ALUControl = 4'b1001;   //SRA, SRAI
+            7'b10011xx: ALUControl = 4'b1010;   //SLTU, SLTIU
             
             default: ALUControl = 4'b000;
         endcase

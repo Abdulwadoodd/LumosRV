@@ -11,7 +11,7 @@ module extend (
             7'b0000011:  ImmExt <= {{20{Instr[31]}}, Instr[31:20]};     // Load type
             7'b0010011: begin               // I type without load
                             case (Instr[14:12])
-                                3'b011: ImmExt <= {{20{1'b0}}, Instr[31:20]};   //SLTIU
+                                //3'b011: ImmExt <= {{20{1'b0}}, Instr[31:20]};   //SLTIU
                                 3'b001, 3'b101: ImmExt <= {{27{1'b0}}, Instr[24:20]};   //SLLI, SRLI, SRAI
                                 default: ImmExt <= {{20{Instr[31]}}, Instr[31:20]};  //remaining I-type
                             endcase
