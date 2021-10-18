@@ -22,10 +22,19 @@
 # Logical operation test
 # addi x1,x0,0b10101111
 # addi x2,x0,-16
-# addi x5,x0,3
-# sll x3,x1,x5
-# srl x3,x1,x5
-# sra x4,x2,x5
+# slli x3,x1,3
+# srli x3,x1,3
+# srai x4,x2,3
+
+# slt with signed and unsigned check    &&      Branch instruction check    
+# addi x1, x0, -3
+# addi x2, x0, 2
+# # sltu x3, x1, x2
+# # slt x4,x1,x2
+# bgeu x2,x1,jmp  #check every branch instruction here
+# addi x4,x0,22
+# jmp:
+# addi x3,x0,69
 # addi x0,x0,0
 
 
