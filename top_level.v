@@ -11,14 +11,13 @@ module top_level (
     //wire [1:0] ImmSrc;
     wire PCSrc, RegWrite, ALUSrc;
     wire [1:0] ResultSrc,MemWrite;
-    wire [2:0] MemRead;
+    wire [2:0] MemRead,br_taken;
     wire signed [3:0] ALUControl;
     //necessary wires and reg for top level Data Path
     wire [31:0] ReadData,WriteData;
     wire signed [31:0] SrcA;
     reg [31:0] ALUResult,Result;
     reg signed [31:0] SrcB;
-    reg beq,bne,zero;
     reg [31:0] PCTarget,PCNext,PCPlus4;
     
     always @(*) begin
@@ -68,7 +67,8 @@ module top_level (
     always @(*) begin
         SrcB <= ALUSrc ? ImmExt : WriteData; 
     end
-
+    
+    // ALU
     always @(*) begin
         case (ALUControl)
             4'b0000: ALUResult = SrcA + SrcB;
@@ -84,12 +84,28 @@ module top_level (
             
             default: ALUResult = 32'd0;
         endcase
-        beq = (ALUResult == 0);
-        bne = (ALUResult != 0);
+        //beq = (ALUResult == 0);
+        //bne = (ALUResult != 0);
+    end
+
+    reg beq,bne,blt,bge,zero;
+    
+    //Branch Module
+    always @(*) begin
+        beq <= (SrcA == SrcB);
+        bne <= (SrcA != SrcB);
+        blt <= (SrcA < SrcB);
+        bge <= (SrcA >= SrcB);
     end
 
     always@(*)begin
-        zero <= func3 ? bne : beq;               
+        case (br_taken)
+            3'b001: zero = beq;
+            3'b010: zero = bne;
+            3'b011: zero = blt;
+            3'b100: zero = bge;
+            default: zero = 1'b0;
+        endcase              
     end
 
     Data_Memory a5(.RD(ReadData),.DM0(DM0), .DM4(DM4), .DM8(DM8), .WD(WriteData), .A(ALUResult), .WE(MemWrite), .RE(MemRead) , .clk(clk), .rst(rst));
@@ -105,6 +121,6 @@ module top_level (
     end
 
     ControlUnit a6( .opcode(opcode), .func3(func3), .func7_5(func7_5), .zero(zero), .ResultSrc(ResultSrc), .MemWrite(MemWrite),
-    .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ALUControl(ALUControl), .MemRead(MemRead));
+    .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ALUControl(ALUControl), .MemRead(MemRead), .br_taken(br_taken));
 
 endmodule
