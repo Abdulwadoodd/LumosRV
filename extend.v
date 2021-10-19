@@ -19,7 +19,7 @@ module extend (
             7'b0100011:  ImmExt <= {{20{Instr[31]}}, Instr[31:25], Instr[11:7]};   // S-type
             7'b1100011:  ImmExt <= {{20{Instr[31]}}, Instr[7], Instr[30:25], Instr[11:8], 1'b0}; // B-type
             7'b1101111:  ImmExt <= {{12{Instr[31]}}, Instr[19:12], Instr[20], Instr[30:21], 1'b0}; // JAL type
-            7'b0110111:  ImmExt <= Instr[31:12] << 12;  // U-type
+            7'b0110111, 7'b0010111 :  ImmExt <= Instr[31:12] << 12;  // U-type
             default:  ImmExt <= 32'b0; 
         endcase
     end

@@ -4,24 +4,21 @@ module top_level (
     input clk, rst,
     //output [31:0] Reg_File,
     //output [3:0] ALUControl,
+    
     output reg [31:0] PC,
-    output [31:0] Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7, DM0, DM4, DM8
-);
+    output [31:0] Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7, DM0, DM4, DM8);
     // Control Flags
-    //wire [1:0] ImmSrc;
-    wire PCSrc, RegWrite, ALUSrc;
+    wire  RegWrite, ALUSrc2, ALUSrc1;
     wire [1:0] ResultSrc,MemWrite;
-    wire [2:0] MemRead,br_taken;
+    wire [2:0] MemRead,br_type;
     wire [3:0] ALUControl;
     //necessary wires and reg for top level Data Path
-    wire [31:0] ReadData,WriteData;
-    wire [31:0] SrcA;
-    reg [31:0] ALUResult,Result;
-    reg [31:0] SrcB;
-    reg [31:0] PCTarget,PCNext,PCPlus4;
-    
+    wire [31:0] ReadData,RD2, RD1,ImmExt;
+    reg [31:0] Result, SrcA, SrcB, PCNext,PCPlus4,ALUResult;
+    reg br_taken;
+
     always @(*) begin
-        PCNext <= PCSrc ? PCTarget : PCPlus4;
+        PCNext <= br_taken ? ALUResult : PCPlus4;
     end
 
     always @(*) begin
@@ -33,11 +30,6 @@ module top_level (
             PC <= 32'd0;
         else
             PC <= PCNext;
-    end
-    //address_generator a3( .PCTarget(PCTarget), .clk(clk), .rst(rst), .pc_src(PCSrc) , .pc(PC));
-    wire [31:0] ImmExt;
-    always @(*) begin
-        PCTarget <= ImmExt + PC;
     end
 
     instr_mem a1(.A(PC), .RD(Instr));
@@ -56,16 +48,18 @@ module top_level (
         A3 <= Instr[11:7];
     end
 
-    
-    
     extend a2(.ImmExt(ImmExt), .Instr(Instr));
 
-    register_file a4 ( .RD1(SrcA), .RD2(WriteData), .RF1(RF1), .RF2(RF2), .RF3(RF3), .RF4(RF4), .RF5(RF5),
+    register_file a4 ( .RD1(RD1), .RD2(RD2), .RF1(RF1), .RF2(RF2), .RF3(RF3), .RF4(RF4), .RF5(RF5),
                        .RF6(RF6), .RF7(RF7), .WD3(Result), .A1(A1), .A2(A2), .A3(A3), 
                         .WE3(RegWrite), .clk(clk),.rst(rst) );
 
     always @(*) begin
-        SrcB <= ALUSrc ? ImmExt : WriteData; 
+        SrcA <= ALUSrc1 ? PC : RD1;
+    end
+    
+    always @(*) begin
+        SrcB <= ALUSrc2 ? ImmExt : RD2; 
     end
     
     // ALU
@@ -85,31 +79,25 @@ module top_level (
             //4'b1011: ALUResult = $signed(SrcA) - $signed(SrcB);
             default: ALUResult = 32'd0;
         endcase
-        //beq = (ALUResult == 0);
-        //bne = (ALUResult != 0);
     end
 
-    reg zero;
     //Branch Module
-    // always @(*) begin
-    //     beq <= (SrcA == SrcB);
-    //     bne <= (SrcA != SrcB);
-    //     blt <= (SrcA < SrcB);
-    //     bge <= (SrcA >= SrcB);
-    // end
     always@(*)begin
-        case (br_taken)
-            3'b001: zero = (SrcA == SrcB);
-            3'b010: zero = (SrcA != SrcB);
-            3'b011: zero = (SrcA < SrcB);
-            3'b100: zero = (SrcA >= SrcB);
-            3'b101: zero = ($signed(SrcA) < $signed(SrcB));
-            3'b110: zero = ($signed(SrcA) >= $signed(SrcB));
-            default: zero = 1'b0;
+        case (br_type)
+            3'b000: br_taken = 1'b0;
+            3'b001: br_taken = (RD1 == RD2);  //beq
+            3'b010: br_taken = (RD1 != RD2);  //bne
+            3'b011: br_taken = (RD1 < RD2);   //sltu
+            3'b100: br_taken = (RD1 >= RD2);  //bgeu
+            3'b101: br_taken = ($signed(RD1) < $signed(RD2));     //slt
+            3'b110: br_taken = ($signed(RD1) >= $signed(RD2));    //bge
+            3'b111: br_taken = 1'b1;     // JAL, JALR
+            default: br_taken = 1'b0;
         endcase              
     end
 
-    Data_Memory a5(.RD(ReadData),.DM0(DM0), .DM4(DM4), .DM8(DM8), .WD(WriteData), .A(ALUResult), .WE(MemWrite), .RE(MemRead) , .clk(clk), .rst(rst));
+    Data_Memory a5( .RD(ReadData),.DM0(DM0), .DM4(DM4), .DM8(DM8), .WD(RD2), .A(ALUResult), 
+                    .WE(MemWrite), .RE(MemRead) , .clk(clk), .rst(rst));
 
     always @(*) begin
         case (ResultSrc)
@@ -121,7 +109,8 @@ module top_level (
         //Result <= ResultSrc ? ReadData: ALUResult;
     end
 
-    ControlUnit a6( .opcode(opcode), .func3(func3), .func7_5(func7_5), .zero(zero), .ResultSrc(ResultSrc), .MemWrite(MemWrite),
-    .ALUSrc(ALUSrc), .RegWrite(RegWrite), .PCSrc(PCSrc), .ALUControl(ALUControl), .MemRead(MemRead), .br_taken(br_taken));
+    ControlUnit a6( .opcode(opcode), .func3(func3), .func7_5(func7_5), .ResultSrc(ResultSrc),
+                    .MemWrite(MemWrite), .ALUSrc2(ALUSrc2), .ALUSrc1(ALUSrc1), .RegWrite(RegWrite), 
+                    .ALUControl(ALUControl), .MemRead(MemRead), .br_type(br_type));
 
 endmodule

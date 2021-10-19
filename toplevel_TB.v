@@ -2,8 +2,8 @@
 
 module toplevel_TB();
     reg clk,rst;
-    wire [31:0] PC,Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7,DM0,DM4,DM8;
-    //wire [3:0] ALUControl;
+    wire [31:0] PC, Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7,DM0,DM4,DM8;
+    
     top_level DUT(clk, rst, PC,Instr, RF1, RF2, RF3, RF4, RF5, RF6, RF7, DM0, DM4, DM8);
     
     initial clk=0;
