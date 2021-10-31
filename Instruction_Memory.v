@@ -10,5 +10,5 @@ module instr_mem (input [31:0] A,output reg [31:0] RD);
 	always @(*) begin
 		RD <= mem[A/4];
 	end
-
+	
 endmodule

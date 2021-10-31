@@ -1,5 +1,6 @@
-module Data_Memory(output reg [31:0] RD, DM0,DM4,DM8,
-					input [31:0] WD, input [31:0] A, input [1:0] WE, input [2:0] RE, input clk, input rst);
+module Data_Memory(output reg [31:0] RD, DM0, DM4, DM8, DM12, DM16, DM20, DM24, DM28,
+					input [31:0] WD, input [31:0] A, input [1:0] WE, 
+					input [2:0] RE, input clk, input rst);
 		
 		reg [31:0] Mem [255:0];			// Data Memory
 		integer i;
@@ -43,9 +44,14 @@ module Data_Memory(output reg [31:0] RD, DM0,DM4,DM8,
 
 		always @(*) begin
 			//RD <= Mem[A];
-			DM0 <= Mem[32'h0];
-			DM4 <= Mem[32'h4];
-			DM8 <= Mem[32'h8];
+			DM0 <= Mem[32'd0];
+			DM4 <= Mem[32'd4];
+			DM8 <= Mem[32'd8];
+			DM12 <= Mem[32'd12];
+			DM16 <= Mem[32'd16];
+			DM20 <= Mem[32'd20];
+			DM24 <= Mem[32'd24];
+			DM28 <= Mem[32'd28];
+			//DM8 <= Mem[32'h8];
 		end
-
 endmodule

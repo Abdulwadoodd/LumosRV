@@ -11,7 +11,6 @@ module ControlUnit (
 );
 
     reg [1:0] ALUOp;
-
     always @(*) begin   
         casex ({opcode,func3})
             10'b0110011xxx: begin   // R-type
@@ -245,7 +244,5 @@ module ControlUnit (
             default: ALUControl = 4'b000;
         endcase
     end
-
-
  
 endmodule
