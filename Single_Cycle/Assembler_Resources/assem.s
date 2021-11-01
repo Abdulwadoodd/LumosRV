@@ -14,7 +14,6 @@ less:
 
 stop:
     sw x1,8(x0)
-    addi x0,x0,0
     
 
 
