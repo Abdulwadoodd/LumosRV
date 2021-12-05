@@ -8,19 +8,35 @@
 # add x5,x3,x4
 # sub x6,x3,x4
 
+# addi x1,x0,11
+# sw x1, 0(x0)
+# lw x2, 0(x0)
+# addi x2,x2,10
+# addi x2,x2,10
+# addi x2,x2,10
+# nop
 #GCD
-addi x1,x0,56
-addi x2,x0,48
+# addi x4,x0,2
+# addi x5,x0,5
+# addi x6,x0,21
+
+# sub x7,x6,x4
+# add x8,x5,x7
+# sub x9,x8,x6
+
+
+addi x1,x0,49
+addi x2,x0,56
 sw x1,0(x0)
 sw x2,4(x0)
 GCD:
     beq x1,x2,stop
     blt x1,x2,less
     sub x1,x1,x2
-    jal x4, GCD
+    jal x3, GCD
 less:
     sub x2,x2,x1
-    jal x4, GCD
+    jal x3, GCD
 
 stop:
     sw x1,8(x0)
