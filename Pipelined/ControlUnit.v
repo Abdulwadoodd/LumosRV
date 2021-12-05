@@ -158,7 +158,7 @@ module ControlUnit (
                                 RegWrite = 0;
                                 ALUSrc2 = 1;
                                 MemWrite = 2'b11;
-                                ResultSrc = 2'bxx;
+                                ResultSrc = 2'b00;
                                 ALUOp = 2'b00;
                                 MemRead= 3'b000;
                                 br_type = 3'b000;

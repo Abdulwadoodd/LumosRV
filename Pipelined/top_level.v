@@ -24,7 +24,13 @@ module top_level (
         else if(!StallF)
             PC <= PCNext;
     end
-    instr_mem IM(.A(PC), .RD(InstrF));      //Instruction memory
+    reg [31:0] Dum; 
+    reg [5:0] IMaddr;
+    always @(*) begin
+        Dum <= PCNext>>2;
+        IMaddr <= Dum[5:0];
+    end
+    instr_mem IM(.A(IMaddr), .clk(clk), .rst(rst), .RD(InstrF));      //Instruction memory
 
     //-----------------------------------DECODE Stage-------------------------------
     reg [31:0] PCD,InstrD;
@@ -107,11 +113,11 @@ module top_level (
             MemReadE <= MemRead;
             br_typeE <= br_type;
             ALUControlE <= ALUControl;
-        end
-            
+        end     
     end
+
     reg [31:0] InA,InB;
-    always @(*) begin   //Forwarding @ source A
+    always @(*) begin   //Forwarding MUX @ source A
         case (ForA)
             2'b00: InA <= RD1_E;
             2'b01: InA <= ResultW;
@@ -119,7 +125,7 @@ module top_level (
             default: InA <= RD1_E;
         endcase
     end
-    always @(*) begin   //Forwarding @ source B
+    always @(*) begin   //Forwarding MUX @ source B
         case (ForB)
             2'b00: InB <= RD2_E;
             2'b01: InB <= ResultW;
@@ -129,11 +135,11 @@ module top_level (
     end
 
     reg [31:0]  SrcA, SrcB;
-    always @(*) begin
+    always @(*) begin   //MUX
         SrcA <= ALUSrc1E ? PCE : InA;
     end
     
-    always @(*) begin
+    always @(*) begin   //MUX
         SrcB <= ALUSrc2E ? ImmExtE : InB; 
     end
 
@@ -165,8 +171,6 @@ module top_level (
     
     //-----------------------------------WRITE BACK Stage--------------------------
     reg [31:0] PCW, ALUResultW, ReadDataW;
-    //Control Flags
-    
     reg [1:0] ResultSrcW;
 
     always @(posedge clk) begin
@@ -177,13 +181,13 @@ module top_level (
         //Control:-
         RegWriteW <= RegWriteM;
         ResultSrcW <= ResultSrcM;
-
     end
+
     reg [31:0] PCWplus4;
     always @(*) begin
         PCWplus4 <= PCW + 32'd4;
     end
-    
+    // Write back MUX
     always @(*) begin
         case (ResultSrcW)
             2'b00: ResultW <= ALUResultW;

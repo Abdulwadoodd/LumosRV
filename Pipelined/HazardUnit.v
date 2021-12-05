@@ -40,7 +40,7 @@ module HazardUnit (
             ForB = 2'b00;
     end
 
-    //------------------------LW Stalling-------------------
+    //------------------------LW Stalling- && Control Hazard------------------
     reg lwStall; 
     always @(*) begin
         if(rst)begin
