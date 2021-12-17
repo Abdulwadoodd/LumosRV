@@ -5,7 +5,7 @@ module ControlUnit (
     input [2:0] func3,
     input func7_5,
     output reg [1:0] ResultSrc,MemWrite,
-    output reg  ALUSrc2, ALUSrc1, RegWrite,
+    output reg  ALUSrc2, ALUSrc1, RegWrite,csr_sel,
     output reg [3:0] ALUControl,
     output reg [2:0] MemRead, br_type
 );
@@ -22,6 +22,7 @@ module ControlUnit (
                                 MemRead = 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end 
             10'b1100011000: begin   //  BEQ
                                 RegWrite = 0;
@@ -32,6 +33,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b001;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end 
             10'b1100011001: begin   //  BNE
                                 RegWrite = 0;
@@ -42,6 +44,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b010;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end 
             10'b1100011100: begin   //  BLT 
                                 RegWrite = 0;
@@ -52,6 +55,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b101;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end 
             10'b1100011110: begin   //  BLTU
                                 RegWrite = 0;
@@ -62,6 +66,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b011;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end
             10'b1100011101: begin   //  BGE 
                                 RegWrite = 0;
@@ -72,6 +77,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b110;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end 
             10'b1100011111: begin   //   BGEU
                                 RegWrite = 0;
@@ -82,6 +88,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b100;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end
             10'b0010011xxx: begin       // I-type (addi)
                                 RegWrite = 1;
@@ -92,6 +99,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end
             
             10'b0010111xxx: begin       // U-Type (auipc)
@@ -103,6 +111,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end
             10'b0110111xxx: begin       // U-Type (lui)
                                 RegWrite = 1;
@@ -113,6 +122,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end
             10'b1101111xxx: begin       // J-type (jal)
                                 RegWrite =1;
@@ -123,6 +133,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b111;
                                 ALUSrc1 = 1;
+                                csr_sel = 0;
                             end
             10'b1100111xxx: begin       // J-type (jalr)
                                 RegWrite =1;
@@ -133,6 +144,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b111;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end
             10'b0100011000: begin   //sb
                                 RegWrite = 0;
@@ -143,6 +155,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                         end  
             10'b0100011001: begin   //sh
                                 RegWrite = 0;
@@ -153,6 +166,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end  
             10'b0100011010: begin   //sw
                                 RegWrite = 0;
@@ -163,6 +177,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end 
             10'b0000011010: begin // lw
                                 RegWrite = 1;
@@ -173,6 +188,7 @@ module ControlUnit (
                                 MemRead= 3'b000;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end 
             10'b0000011000: begin // lb
                                 RegWrite = 1;
@@ -183,6 +199,7 @@ module ControlUnit (
                                 MemRead= 3'b001;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end 
             10'b0000011001: begin // lh
                                 RegWrite = 1;
@@ -193,6 +210,7 @@ module ControlUnit (
                                 MemRead= 3'b010;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end 
             10'b0000011100: begin // lbu
                                 RegWrite = 1;
@@ -203,6 +221,7 @@ module ControlUnit (
                                 MemRead= 3'b011;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
                             end 
             10'b0000011101: begin // lhu
                                 RegWrite = 1;
@@ -213,7 +232,41 @@ module ControlUnit (
                                 MemRead= 3'b100;
                                 br_type = 3'b000;
                                 ALUSrc1 = 0;
+                                csr_sel = 0;
+                            end
+            10'b1110011001, 10'b1110011010, 10'b1110011011: begin
+                                RegWrite = 1;
+                                ALUSrc2 = 0;
+                                MemWrite = 2'b00;
+                                ResultSrc = 2'b11;
+                                ALUOp = 2'b00;
+                                MemRead= 3'b100;
+                                br_type = 3'b000;
+                                ALUSrc1 = 0;
+                                csr_sel = 0;
+                            end
+            10'b1110011101, 10'b1110011110, 10'b1110011111: begin
+                                RegWrite = 1;
+                                ALUSrc2 = 0;
+                                MemWrite = 2'b00;
+                                ResultSrc = 2'b11;
+                                ALUOp = 2'b00;
+                                MemRead= 3'b100;
+                                br_type = 3'b000;
+                                ALUSrc1 = 0;
+                                csr_sel = 1;
                             end 
+            10'b1110011000: begin
+                                RegWrite = 0;
+                                ALUSrc2 = 0;
+                                MemWrite = 2'b00;
+                                ResultSrc = 2'b11;
+                                ALUOp = 2'b00;
+                                MemRead= 3'b100;
+                                br_type = 3'b000;
+                                ALUSrc1 = 0;
+                                csr_sel = 0;
+                            end
             default:    begin       // default
                             RegWrite = 0;
                             ALUSrc2 = 0;
@@ -223,6 +276,7 @@ module ControlUnit (
                             MemRead= 3'b000;
                             br_type = 3'b000;
                             ALUSrc1 = 0;
+                            csr_sel = 0;
                         end 
         endcase
     end

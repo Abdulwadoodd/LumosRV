@@ -20,7 +20,6 @@ module HazardUnit (
         Rs1D <= InstrD[19:15];
         Rs2D <= InstrD[24:20];
         RdE <= InstrE[11:7];
-        ResultSrcE_o <= ResultSrcE[0];
     end
     //-------------------------FORWARDING----------------
     always @(*) begin
@@ -50,7 +49,7 @@ module HazardUnit (
             FlushE = 0;
         end
         else begin
-            lwStall = ResultSrcE_o & ((Rs1D == RdE) | (Rs2D == RdE));
+            lwStall = (ResultSrcE==2'b01) & ((Rs1D == RdE) | (Rs2D == RdE)) ;
             FlushE = lwStall | br_taken;
             FlushD = br_taken;
             StallD = lwStall;
