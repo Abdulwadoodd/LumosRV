@@ -1,0 +1,4 @@
+ver_work/
+__pycache__/
+*.vcd
+riscof_work/
