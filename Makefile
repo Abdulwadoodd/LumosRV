@@ -40,4 +40,4 @@ verilate:
 	cd $(ver-library) && $(MAKE) -f Vcore_sim.mk
 
 clean:
-	rm -rf *.vcd ver_work/
+	rm -rf *.vcd ver_work/ verif/*_work/
