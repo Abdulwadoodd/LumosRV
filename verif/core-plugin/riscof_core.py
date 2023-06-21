@@ -48,6 +48,7 @@ class core(pluginTemplate):
        self.buidldir = 'sim_work'
        comp_core = 'verilator --Mdir {0}    \
         -cc ../bench/{1}.v  ../rtl/*.v      \
+        +define+ACT                         \
         -Wno-TIMESCALEMOD 					\
         -Wno-MULTIDRIVEN 					\
         -Wno-CASEOVERLAP					\
@@ -71,9 +72,8 @@ class core(pluginTemplate):
 
        # Simulate
        self.sim_core = './{0}/V{1} \
-        +max_cycles=100000000000 \
-        +imem={2}/{3}.hex \
-        +signature={2}/DUT-core.signature'
+        +max_cycles=10000000 \
+        +imem={2}/{3}.hex'
 
     def build(self, isa_yaml, platform_yaml):
 
@@ -94,7 +94,7 @@ class core(pluginTemplate):
           testentry  = testList[testname]
           test       = testentry['test_path']
           test_dir   = testentry['work_dir']
-          file_name  = 'core-{0}'.format(test.rsplit('/',1)[1][:-2])
+          file_name  = 'dut'
 
           elf            = '{0}.elf'.format(file_name)
           compile_macros = ' -D' + " -D".join(testentry['macros'])
@@ -113,6 +113,11 @@ class core(pluginTemplate):
 
           run_sim        = self.sim_core.format(self.buidldir,self.toplevel,test_dir,file_name)
           utils.shellCommand(run_sim).run()
+
+          cp_sig = 'cp -f *.signature {0}/.'.format(test_dir)
+          utils.shellCommand(cp_sig).run()
+        
+      utils.shellCommand('rm *.signature').run()
 
       if not self.target_run:
           raise SystemExit

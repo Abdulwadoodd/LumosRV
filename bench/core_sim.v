@@ -16,29 +16,33 @@ module core_sim(input clk, input rst);
     end
 
     // ====================== For RISC-V architecture tests ========================== //
-
-    wire sig_en  = (DUT.mem_inst.i_dmem_addr == 32'h8E000000) & (DUT.mem_inst.i_dmem_wr_type==2'b11);
-    wire halt_en = (DUT.mem_inst.i_dmem_addr == 32'h8F000000) & (DUT.mem_inst.i_dmem_wr_type==2'b11);
-    
-    reg [1023:0] signature_file;
-
-    integer write_sig=0;
-    
-    initial begin
-        if($value$plusargs("signature=%s",signature_file)) begin
-            $display("Writing signature to %0s", signature_file);
-            write_sig=$fopen(signature_file,"w");
+    `ifdef ACT
+        wire sig_en  = (DUT.mem_inst.i_dmem_addr == 32'h8E000000) & (DUT.mem_inst.i_dmem_wr_type==2'b11);
+        wire halt_en = (DUT.mem_inst.i_dmem_addr == 32'h8F000000) & (DUT.mem_inst.i_dmem_wr_type==2'b11);
+        
+        integer write_sig;
+        
+        initial begin
+            write_sig = $fopen("DUT-core.signature", "w"); // Open file for writing
+        
+            if (write_sig == 0) begin
+              $display("Error opening file for writing");
+              $finish;
+            end
         end
-    end
-    
-    always @ (posedge clk) begin 
-        if(sig_en & (write_sig!=0))
-            $fwrite(write_sig,"%h\n",DUT.mem_inst.i_dmem_wdata);
-        else if(halt_en) begin
-            $display("Test Complete");
-            $fclose(write_sig);
-            $finish;
-        end
-    end
+        
+        // Write data to the file
+        always @ (posedge clk) begin 
+            if(sig_en) begin
+                //$display("%h\n",DUT.mem_inst.i_dmem_wdata);
+                $fwrite(write_sig,"%h\n",DUT.mem_inst.i_dmem_wdata);
+            end
+            else if(halt_en) begin
+                $display("Test Complete");
+                $fclose(write_sig);
+                $finish;
+            end
+        end  
+    `endif
 
 endmodule

@@ -36,7 +36,4 @@ module core_top (input clk, rst);
         .clk(clk), .rst(rst)
     );
 
-
-
-
 endmodule
