@@ -5,7 +5,7 @@ ver-library 	?= ver_work
 defines 		?= 
 
 # default command line arguments
-imem 			?= sw/code.mem
+imem 			?= sw/gcd.mem
 max_cycles  	?= 1000000
 vcd 			?= 0
 
