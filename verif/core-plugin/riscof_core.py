@@ -49,21 +49,7 @@ class core(pluginTemplate):
        comp_core = 'verilator --Mdir {0}    \
         -cc ../bench/{1}.v  ../rtl/*.v      \
         +define+ACT                         \
-        -Wno-TIMESCALEMOD 					\
-        -Wno-MULTIDRIVEN 					\
-        -Wno-CASEOVERLAP					\
-        -Wno-WIDTH 							\
-        -Wno-LATCH							\
-        -Wno-UNOPTFLAT						\
-        -Wno-LATCH							\
-        -Wno-IMPLICIT						\
         -Wno-fatal                       	\
-        -Wno-PINCONNECTEMPTY  				\
-        -Wno-ASSIGNDLY                     	\
-        -Wno-DECLFILENAME                	\
-        -Wno-UNUSED                        	\
-        -Wno-BLKANDNBLK                   	\
-        -Wno-style                        	\
         --top-module {1} \
         --exe ../bench/core_tb.cpp --trace --trace-structs'.format(self.buidldir, self.toplevel)
        utils.shellCommand(comp_core).run()
