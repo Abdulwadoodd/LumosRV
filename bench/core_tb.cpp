@@ -21,10 +21,8 @@ void INThandler(int signal)
 }
 
 int main(int argc, char** argv) {
-  printf("\nVerilator: Simulation started\n");
 
   Verilated::commandArgs(argc, argv);
-
   Vcore_sim* tb = new Vcore_sim;
 
   // init trace dump

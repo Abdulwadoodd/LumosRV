@@ -34,7 +34,6 @@ module core_sim(input clk, input rst);
         // Write data to the file
         always @ (posedge clk) begin 
             if(sig_en) begin
-                //$display("%h\n",DUT.mem_inst.i_dmem_wdata);
                 $fwrite(write_sig,"%h\n",DUT.mem_inst.i_dmem_wdata);
             end
             else if(halt_en) begin
